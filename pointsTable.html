@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Points Table System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f0f0f0;
+      background-image: radial-gradient(circle at 20% 20%, rgba(0, 0, 0, 0.05) 10%, transparent 10%),
+                        radial-gradient(circle at 80% 80%, rgba(0, 0, 0, 0.05) 10%, transparent 10%);
+      background-size: 100px 100px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #444;
+      color: #fff;
+    }
+    input {
+      width: 70px;
+      text-align: center;
+    }
+    .team-name {
+      width: 150px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+  <h2>Football Points Table</h2>
+  <table id="pointsTable">
+    <thead>
+      <tr>
+        <th>Team</th>
+        <th>GP</th>
+        <th>W</th>
+        <th>D</th>
+        <th>L</th>
+        <th>GF</th>
+        <th>GA</th>
+        <th>GD</th>
+        <th>Pts</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input class="team-name" value="Asmit FC"></td>
+        <td><input type="number" class="games-played" value="0" readonly></td>
+        <td><input type="number" class="wins" value="0"></td>
+        <td><input type="number" class="draws" value="0"></td>
+        <td><input type="number" class="losses" value="0"></td>
+        <td><input type="number" class="goals-scored" value="0"></td>
+        <td><input type="number" class="goals-conceded" value="0"></td>
+        <td><input type="number" class="goal-diff" value="0" readonly></td>
+        <td><input type="number" class="points" value="0" readonly></td>
+      </tr>
+      <tr>
+        <td><input class="team-name" value="Bibek FC"></td>
+        <td><input type="number" class="games-played" value="0" readonly></td>
+        <td><input type="number" class="wins" value="0"></td>
+        <td><input type="number" class="draws" value="0"></td>
+        <td><input type="number" class="losses" value="0"></td>
+        <td><input type="number" class="goals-scored" value="0"></td>
+        <td><input type="number" class="goals-conceded" value="0"></td>
+        <td><input type="number" class="goal-diff" value="0" readonly></td>
+        <td><input type="number" class="points" value="0" readonly></td>
+      </tr>
+      <tr>
+        <td><input class="team-name" value="Rohan FC"></td>
+        <td><input type="number" class="games-played" value="0" readonly></td>
+        <td><input type="number" class="wins" value="0"></td>
+        <td><input type="number" class="draws" value="0"></td>
+        <td><input type="number" class="losses" value="0"></td>
+        <td><input type="number" class="goals-scored" value="0"></td>
+        <td><input type="number" class="goals-conceded" value="0"></td>
+        <td><input type="number" class="goal-diff" value="0" readonly></td>
+        <td><input type="number" class="points" value="0" readonly></td>
+      </tr>
+      <tr>
+        <td><input class="team-name" value="Sudeep FC"></td>
+        <td><input type="number" class="games-played" value="0" readonly></td>
+        <td><input type="number" class="wins" value="0"></td>
+        <td><input type="number" class="draws" value="0"></td>
+        <td><input type="number" class="losses" value="0"></td>
+        <td><input type="number" class="goals-scored" value="0"></td>
+        <td><input type="number" class="goals-conceded" value="0"></td>
+        <td><input type="number" class="goal-diff" value="0" readonly></td>
+        <td><input type="number" class="points" value="0" readonly></td>
+      </tr>
+    </tbody>
+  </table>
+  <button onclick="updateAndSortTable()">Update & Sort Table</button>
+
+  <script>
+    function updateAndSortTable() {
+      const rows = Array.from(document.querySelectorAll("#pointsTable tbody tr"));
+
+      const teams = rows.map(row => {
+        const name = row.querySelector(".team-name").value;
+        const wins = parseInt(row.querySelector(".wins").value) || 0;
+        const draws = parseInt(row.querySelector(".draws").value) || 0;
+        const losses = parseInt(row.querySelector(".losses").value) || 0;
+        const played = wins + draws + losses;
+        const scored = parseInt(row.querySelector(".goals-scored").value) || 0;
+        const conceded = parseInt(row.querySelector(".goals-conceded").value) || 0;
+        const goalDiff = scored - conceded;
+        const points = (wins * 3) + (draws * 1);
+
+        row.querySelector(".games-played").value = played;
+        row.querySelector(".goal-diff").value = goalDiff;
+        row.querySelector(".points").value = points;
+
+        return { row, name, played, wins, draws, losses, scored, conceded, goalDiff, points };
+      });
+
+      teams.sort((a, b) => {
+        if (b.points !== a.points) return b.points - a.points;
+        return b.goalDiff - a.goalDiff;
+      });
+
+      const tbody = document.querySelector("#pointsTable tbody");
+      tbody.innerHTML = "";
+      teams.forEach(team => tbody.appendChild(team.row));
+
+      // Save data to localStorage
+      const savedData = teams.map(team => {
+        const inputs = team.row.querySelectorAll("input");
+        return Array.from(inputs).map(input => input.value);
+      });
+      localStorage.setItem("pointsTableData", JSON.stringify(savedData));
+    }
+
+    function loadSavedData() {
+      const saved = localStorage.getItem("pointsTableData");
+      if (!saved) return;
+      const savedData = JSON.parse(saved);
+      const rows = document.querySelectorAll("#pointsTable tbody tr");
+      rows.forEach((row, i) => {
+        if (!savedData[i]) return;
+        const inputs = row.querySelectorAll("input");
+        inputs.forEach((input, j) => {
+          input.value = savedData[i][j];
+        });
+      });
+    }
+
+    window.onload = loadSavedData;
+  </script>
+</body>
+</html>
